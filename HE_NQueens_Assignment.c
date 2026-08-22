@@ -54,8 +54,7 @@ int main()
         {
             for(int j = n; j--;)
             {
-                printf("%d", board[i][j]);
-                if(j > 0){printf(" ");}
+                printf("%d ", board[i][j]);
             }
             printf("\n");
         }
