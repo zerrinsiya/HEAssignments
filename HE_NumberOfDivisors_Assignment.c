@@ -38,20 +38,18 @@ void mcqueenWrite(long long x)
     putchar('\n');
 }
 
-long long totalSum(long long x){return (x * (x + 1)) / 2;}
+long long sum(long long x){return (x * (x + 1)) / 2;}
 
 long long solve(long long n, long long k)
 {
+    if(k > n){return sum(n);}
     long long ans = 0;
-    long long N = n;
-
-    while(N > 0)
+    for(; n > 0; n /= k)
     {
-        long long total = totalSum(N);
-        long long div = N / k;
-        long long multiples = totalSum(div) * k;
-        ans += total - multiples;
-        N = div;
+        long long total = sum(n);
+        long long div = n / k;
+        long long multiple = sum(div) * k;
+        ans += total - multiple;
     }
     return ans;
 }
