@@ -20,6 +20,8 @@ int mcqueenRead()
 
 int f[1000];
 int fCount = 0;
+long long pairProd[80005];
+int pairExists[80005];
 
 void fFinder(int n)
 {
@@ -45,27 +47,42 @@ void fFinder(int n)
 
 long long productFinder(int n)
 {
-    long long product = -1;
     int s = fCount;
 
-    for(int i = 0; i < s; i++)
+    for(int i = 0; i <= n; i++)
     {
-        for(int j = 0; j < s; j++)
+        pairExists[i] = 0;
+        pairProd[i] = 0;
+    }
+
+    for(int i = s; i--;)
+    {
+        int a = f[i];
+        for(int j = s; j--;)
         {
-            for(int k = 0; k < s; k++)
+            int b = f[j];
+            int sum = a + b;
+            long long prod = (long long)a * b;
+            if(prod > pairProd[sum])
             {
-                for(int l = 0; l < s; l++)
-                {
-                    int s = f[i] + f[j] + f[k] + f[l];
-                    if(s == n)
-                    {
-                        long long p = (long long)f[i] * f[j] * f[k] * f[l];
-                        if(p > product){product = p;}
-                    }
-                }
+                pairProd[sum] = prod;
+                pairExists[sum] = 1;
             }
         }
     }
+
+    long long product = -1;
+    for(int sum = 2; sum <= n - 2; sum++)
+    {
+        if(!pairExists[sum]){continue;}
+        int rem = n - sum;
+        if(pairExists[rem])
+        {
+            long long p = pairProd[sum] * pairProd[rem];
+            if(p > product){product = p;}
+        }
+    }
+
     return product;
 }
 
