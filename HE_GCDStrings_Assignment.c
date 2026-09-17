@@ -104,7 +104,6 @@ int main()
         build(x, y, 0);
         mcqueenWrite(R[0]);
     }
-    return 0;
 }
 
 //
