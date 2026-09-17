@@ -1,14 +1,10 @@
 #include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<limits.h>
-#include<stdbool.h>
 
-#define mod 1000000007LL
+#define mod 1000000007u
 
-long long mcqueenRead()
+unsigned mcqueenRead()
 {
-    long long x = 0;
+    unsigned x = 0;
     int c = getchar();
     while(c < '0' || c > '9'){c = getchar();}
     while(c >= '0' && c <= '9')
@@ -19,7 +15,7 @@ long long mcqueenRead()
     return x;
 }
 
-void mcqueenWrite(long long x)
+void mcqueenWrite(unsigned x)
 {
     if(x == 0)
     {
@@ -40,82 +36,75 @@ void mcqueenWrite(long long x)
     putchar('\n');
 }
 
-long long power(long long base, long long exp)
+unsigned power(unsigned b, unsigned e)
 {
-    long long result = 1;
-    base %= mod;
-    while(exp > 0)
+    unsigned r = 1;
+    for(; e; e >>= 1)
     {
-        if(exp & 1){result = (result * base) % mod;}
-        base = (base * base) % mod;
-        exp >>= 1;
+        if(e & 1){r = r * (long long unsigned)b % mod;}
+        b = b * (long long unsigned)b % mod;
     }
-    return result;
+    return r;
 }
 
-long long modInverse(long long a)
+unsigned geomSum(unsigned b, unsigned e, unsigned x)
 {
-    return power(a, mod - 2);
+    if(e < 2){return e * x;}
+    unsigned r = 1, s = b, k = 1u << 31;
+    while(!(k & e)){k >>= 1;}
+    for(; k >>= 1;)
+    {
+        r = r * (long long unsigned)(b + 1) % mod;
+        b = b * (long long unsigned)b % mod;
+        if(e & k)
+        {
+            if((r += b) >= mod){r -= mod;}
+            b = b * (long long unsigned)s % mod;
+        }
+    }
+    return r * (long long unsigned)x % mod;
 }
 
-long long solve(long long x, long long y)
+unsigned L[64], R[64], PL[64], E;
+
+unsigned prefixVal(unsigned n, unsigned s)
 {
-    long long origX = x;
-
-    while(y != 0 && x % y != 0)
+    if(!n){return 0;}
+    if(n < L[s])
     {
-        long long temp = x % y;
-        x = y;
-        y = temp;
+        if(s == E){return power(2, n - 1);}
+        else{return prefixVal(n, s + 1);}
     }
+    return (geomSum(PL[s], n / L[s], R[s]) * (long long unsigned)power(2, n % L[s]) + prefixVal(n % L[s], s)) % mod;
+}
 
-    long long L = x;
-    long long k = origX / L;
-    long long r = origX % L;
-
-    long long v = power(2, L - 1);
-    long long vr = (r > 0) ? power(2, r - 1) : 0;
-
-    long long geomSum;
-
-    if(k == 1)
+void build(unsigned a, unsigned b, unsigned s)
+{
+    L[s] = a;
+    PL[s] = power(2, a);
+    if(a % b)
     {
-        geomSum = 1;
+        build(b, a % b, s + 1);
+        R[s] = prefixVal(a, s + 1);
     }
     else
     {
-        long long twoL = power(2, L);
-        long long geomDen = (twoL - 1 + mod) % mod;
-
-        if(geomDen == 0)
-        {
-            geomSum = k % mod;
-        }
-        else
-        {
-            long long twoLk = power(2, L * k);
-            long long geomNum = (twoLk - 1 + mod) % mod;
-            geomSum = (geomNum * modInverse(geomDen)) % mod;
-        }
+        E = s;
+        R[s] = power(2, a - 1);
     }
-
-    long long ans = (v * geomSum) % mod;
-    ans = (ans * power(2, r)) % mod;
-    ans = (ans + vr) % mod;
-
-    return ans;
 }
 
 int main()
 {
-    int t = (int)mcqueenRead();
-
+    unsigned t = mcqueenRead();
     while(t--)
     {
-        long long x = mcqueenRead();
-        long long y = mcqueenRead();
-        mcqueenWrite(solve(x, y));
+        unsigned x = mcqueenRead();
+        unsigned y = mcqueenRead();
+        build(x, y, 0);
+        mcqueenWrite(R[0]);
     }
+    return 0;
 }
 
 //
